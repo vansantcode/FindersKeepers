@@ -1,0 +1,50 @@
+html, body {
+  height: 100%; }
+
+body {
+  background: white url(../images/bg-thanks-min.jpg) no-repeat top center;
+  background-size: cover;
+  font: 1em/1.4 'Sintony';
+  padding: 0;
+  margin: 0;
+  color: #333; }
+
+h1 {
+  text-align: center; }
+
+p {
+  margin: 0 0 2em; }
+
+a {
+  color: black; }
+
+q {
+  quotes: "\201C" "\201D" "\2018" "\2019";
+  text-align: center;
+  display: block;
+  font-size: 1.5em;
+  line-height: 1;
+  margin-bottom: .7em;
+  font-style: italic;
+  padding: 1em; }
+  q:after {
+    font-size: 1.5em; }
+
+.wrapper {
+  padding: 2em;
+  background: rgba(255, 255, 255, 0.95);
+  max-width: 700px;
+  width: 90%;
+  margin: 0 auto;
+  min-height: 100%; }
+
+.logo {
+  display: block;
+  margin: 0 auto; }
+
+.quote-sig {
+  text-align: right;
+  display: block;
+  font-style: italic;
+  font-size: 10px;
+  margin-bottom: 1em; }

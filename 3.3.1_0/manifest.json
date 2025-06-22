@@ -1,0 +1,34 @@
+{
+   "background": {
+      "page": "watson.html"
+   },
+   "browser_action": {
+      "default_icon": "images/icon_19.png",
+      "default_popup": "holmes.html",
+      "default_title": "Holmes"
+   },
+   "commands": {
+      "_execute_browser_action": {
+         "suggested_key": {
+            "default": "Alt+Shift+H"
+         }
+      }
+   },
+   "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
+   "description": "Chrome Bookmark Search Extension",
+   "icons": {
+      "128": "images/icon_128.png",
+      "16": "images/icon_19.png",
+      "48": "images/icon_48.png"
+   },
+   "key": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDOIN5rGHsJvUiBASb7UkXVrkWoQe5HzK+KkkbqYhkFgD7oljIq6u44jQDIvbTm/Nnl/wUX5i+Y1t8ac1YxN/7pcGhtZsGxa2n31zKzeRUpFK9+MHmRYh1xbh0XwvC/7QTPMrrS+OYNKmaMD49QKiScMpeVAvb5MdFFK5vTcPioIwIDAQAB",
+   "manifest_version": 2,
+   "minimum_chrome_version": "25",
+   "name": "Holmes",
+   "omnibox": {
+      "keyword": "*"
+   },
+   "permissions": [ "bookmarks", "tabs", "chrome://favicon/" ],
+   "update_url": "https://clients2.google.com/service/update2/crx",
+   "version": "3.3.1"
+}
