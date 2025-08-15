@@ -97,10 +97,14 @@
             lastFocusedWindow: true
           },
           function (tabs) {
-            // and use that tab to fill in out title and url
+            chrome.extension.getViews({ type: 'popup' }).forEach(v => v.close()) // close popups
+
             var tab = tabs[0]
 
             if ($current_mark != null && tab.url === 'edge://newtab/') {
+              chrome.extension
+                .getViews({ type: 'popup' })
+                .forEach(v => v.close())
               //if new tab update
               return chrome.tabs.update({
                 url: $current_mark.find('a').prop('href'),
