@@ -7,17 +7,22 @@
  *		@version 3.3
  */
 
-(function() {
-  var $current_mark, $view, bmarks_per_page, matchString, pattern, search, updateView;
+;(function () {
+  var $current_mark,
+    $view,
+    bmarks_per_page,
+    matchString,
+    pattern,
+    search,
+    updateView
 
-  bmarks_per_page = 10;
+  bmarks_per_page = 10
 
-  pattern = null;
+  pattern = null
 
-  search = null;
+  search = null
 
-  document.querySelector('#search input').placeholder = Holmes.getPlaceholder();
-
+  document.querySelector('#search input').placeholder = Holmes.getPlaceholder()
 
   /*test = setTimeout () ->
   	$('#search input').focus()
@@ -27,10 +32,9 @@
   if (localStorage['holmes-info-hide'] === 'false') {
     chrome.browserAction.setBadgeText({
       text: ''
-    });
-    localStorage['holmes-info-hide'] = 'true';
+    })
+    localStorage['holmes-info-hide'] = 'true'
   }
-
 
   /* --------------------------------
   
@@ -39,12 +43,11 @@
   --------------------------------
    */
 
-  $('#search input').focus();
+  $('#search input').focus()
 
-  $view = $('#view ol');
+  $view = $('#view ol')
 
-  $current_mark = null;
-
+  $current_mark = null
 
   /*
    *
@@ -52,111 +55,156 @@
    *
    */
 
-  key.filter = function(event) {
-    var tagName;
-    tagName = (event.target || event.srcElement).tagName;
-    return !(tagName === 'SELECT' || tagName === 'TEXTAREA');
-  };
+  key.filter = function (event) {
+    var tagName
+    tagName = (event.target || event.srcElement).tagName
+    return !(tagName === 'SELECT' || tagName === 'TEXTAREA')
+  }
 
-  key('down, up', function(e, h) {
-    if (($current_mark != null) && $view.children().length > 1) {
+  key('down, up', function (e, h) {
+    if ($current_mark != null && $view.children().length > 1) {
       switch (h.shortcut) {
         case 'down':
-          if ($current_mark.index() !== bmarks_per_page - 1 && $current_mark.index() < $view.children().length - 1) {
-            return $current_mark = $current_mark.removeClass('current').next('li').addClass('current');
+          if (
+            $current_mark.index() !== bmarks_per_page - 1 &&
+            $current_mark.index() < $view.children().length - 1
+          ) {
+            return ($current_mark = $current_mark
+              .removeClass('current')
+              .next('li')
+              .addClass('current'))
           }
-          break;
+          break
         case 'up':
           if ($current_mark.index() !== 0) {
-            return $current_mark = $current_mark.removeClass('current').prev('li').addClass('current');
+            return ($current_mark = $current_mark
+              .removeClass('current')
+              .prev('li')
+              .addClass('current'))
           }
       }
     }
-  });
+  })
 
-  key('enter, shift + enter', function(e, h) {
+  key('enter, shift + enter', function (e, h) {
     switch (h.shortcut) {
       case 'enter':
       case 'shift+enter':
-        if ($current_mark != null) {
-          return chrome.tabs.create({
-            url: $current_mark.find('a').prop('href'),
-            pinned: key.shift ? true : false
-          });
-        } else {
-          if (pattern.length > 2) {
-            return chrome.tabs.create({
-              url: 'http://www.google.com/search?q=' + pattern
-            });
-          }
-        }
-    }
-  });
+        // find current active tab
+        chrome.tabs.query(
+          {
+            active: true,
+            lastFocusedWindow: true
+          },
+          function (tabs) {
+            // and use that tab to fill in out title and url
+            var tab = tabs[0]
 
+            if ($current_mark != null && tab.url === 'edge://newtab/') {
+              //if new tab update
+              return chrome.tabs.update({
+                url: $current_mark.find('a').prop('href'),
+                pinned: key.shift ? true : false
+              })
+            } else if ($current_mark != null && tab.url !== 'edge://newtab/') {
+              //if not new tab open in new tab
+              return chrome.tabs.create({
+                url: $current_mark.find('a').prop('href'),
+                pinned: key.shift ? true : false
+              })
+            } else {
+              //search Google in current tab if there is no matching bookmark
+              if (pattern.length > 2 && tab.url === 'edge://newtab/') {
+                return chrome.tabs.update({
+                  url: 'http://www.google.com/search?q=' + pattern
+                })
+              }
+            }
+          }
+        )
+    }
+  })
 
   /*
    *
    *	Helper for matching string in results
    *	Also truncates if char count is more than _char_count
-   *	
+   *
    *	@param _string (string)
    *	@param _char_count (int)
    *	@return string
    *
    */
 
-  matchString = function(_string, _char_count) {
-    var _inp_val_pat;
-    _string = _string.length < _char_count ? _string : _string.substr(0, _char_count) + '...';
-    _inp_val_pat = new RegExp(pattern, "gi");
-    return _string.replace(_inp_val_pat, '<span>' + _inp_val_pat.exec(_string) + '</span>');
-  };
-
+  matchString = function (_string, _char_count) {
+    var _inp_val_pat
+    _string =
+      _string.length < _char_count
+        ? _string
+        : _string.substr(0, _char_count) + '...'
+    _inp_val_pat = new RegExp(pattern, 'gi')
+    return _string.replace(
+      _inp_val_pat,
+      '<span>' + _inp_val_pat.exec(_string) + '</span>'
+    )
+  }
 
   /*
    *
    *	Update search results
-   *	
+   *
    *	@param bmarks (array)
    *
    */
 
-  updateView = function(bmarks) {
-    var _classes, _match, _update, i, j, len, mark;
+  updateView = function (bmarks) {
+    var _classes, _match, _update, i, j, len, mark
     if (bmarks.length > 0) {
-      _update = '';
+      _update = ''
       for (i = j = 0, len = bmarks.length; j < len; i = ++j) {
-        mark = bmarks[i];
+        mark = bmarks[i]
         if (!(i < bmarks_per_page)) {
-          continue;
+          continue
         }
-        _classes = i === 0 ? 'current' : '';
-        _match = matchString(mark.title, 50);
-        _update += "<li class=\"" + _classes + " cf\"><img src=\"chrome://favicon/" + mark.url + "\"><a href=\"" + mark.url + "\" title=\"" + mark.url + "\">" + _match + "</a></li>";
+        _classes = i === 0 ? 'current' : ''
+        _match = matchString(mark.title, 50)
+        _update +=
+          '<li class="' +
+          _classes +
+          ' cf"><img src="chrome://favicon/' +
+          mark.url +
+          '"><a href="' +
+          mark.url +
+          '" title="' +
+          mark.url +
+          '">' +
+          _match +
+          '</a></li>'
       }
-      $view.html(_update);
-      $current_mark = $view.children(':first');
-      return $view.find('a').on('click', function() {
+      $view.html(_update)
+      $current_mark = $view.children(':first')
+      return $view.find('a').on('click', function () {
         return chrome.tabs.create({
           url: this.href
-        });
-      });
+        })
+      })
     } else {
       if (search != null) {
-        $view.html('<div class="no-bookmarks-found"><h1>Oh no!</h1><p><b>No single bookmark found.</b><br>Press enter to Google!</p><p>Or you could check out<br><a href="http://www.blackfish.fi/holmes/" target="_blank" title="Holmes website">Holmes new website!</a></p></div>');
+        $view.html(
+          '<div class="no-bookmarks-found"><h1>Oh no!</h1><p><b>No single bookmark found.</b><br>Press enter to Google!</p><p>Or you could check out<br><a href="http://www.blackfish.fi/holmes/" target="_blank" title="Holmes website">Holmes new website!</a></p></div>'
+        )
       }
-      return $current_mark = null;
+      return ($current_mark = null)
     }
-  };
+  }
 
-  $('#pattern').on('keydown', function(e) {
-    var _kc;
-    _kc = e.keyCode;
+  $('#pattern').on('keydown', function (e) {
+    var _kc
+    _kc = e.keyCode
     if (_kc === 38 || _kc === 40) {
-      return $(this).css('-webkit-user-select', 'none');
+      return $(this).css('-webkit-user-select', 'none')
     }
-  });
-
+  })
 
   /*
    *
@@ -166,30 +214,29 @@
    *
    */
 
-  $('#pattern').on('keyup', function(e) {
-    var _kc, _ret, f, options;
-    _kc = e.keyCode;
+  $('#pattern').on('keyup', function (e) {
+    var _kc, _ret, f, options
+    _kc = e.keyCode
     if (_kc === 38 || _kc === 40 || _kc === 37 || _kc === 39) {
-      $(this).css('-webkit-user-select', 'text');
-      return false;
+      $(this).css('-webkit-user-select', 'text')
+      return false
     }
-    pattern = $('#pattern').val();
-    $view.html('');
-    _ret = [];
+    pattern = $('#pattern').val()
+    $view.html('')
+    _ret = []
     if (pattern.length > 0) {
-      pattern.replace(' ', '');
+      pattern.replace(' ', '')
       options = {
         keys: ['title']
-      };
-      f = new Fuse(Holmes.bookmarks, options);
-      _ret = f.search(pattern);
+      }
+      f = new Fuse(Holmes.bookmarks, options)
+      _ret = f.search(pattern)
     } else {
-      _ret = [];
-      search = null;
+      _ret = []
+      search = null
     }
-    return updateView(_ret);
-  });
-
+    return updateView(_ret)
+  })
 
   /*
    *
@@ -199,9 +246,8 @@
    *
    */
 
-  $('.icon-cog, .icon-info').on('click', function(e) {
-    e.preventDefault();
-    return $('#' + $(this).data('launch')).addClass('open');
-  });
-
-}).call(this);
+  $('.icon-cog, .icon-info').on('click', function (e) {
+    e.preventDefault()
+    return $('#' + $(this).data('launch')).addClass('open')
+  })
+}.call(this))
